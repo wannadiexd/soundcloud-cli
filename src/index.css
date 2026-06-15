@@ -3,7 +3,10 @@
 @theme {
   --color-bg-primary: rgba(10, 10, 12, 0.95);
   --color-bg-glass: rgba(255, 255, 255, 0.03);
+  --color-bg-glass-hover: rgba(255, 255, 255, 0.06);
+  --color-bg-glass-active: rgba(255, 255, 255, 0.09);
   --color-border-glass: rgba(255, 255, 255, 0.06);
+  --color-border-glass-hi: rgba(255, 255, 255, 0.12);
   --color-text-primary: rgba(255, 255, 255, 0.92);
   --color-text-secondary: rgba(255, 255, 255, 0.55);
   --color-text-tertiary: rgba(255, 255, 255, 0.25);
@@ -11,12 +14,14 @@
   --color-accent-hover: #ff6a1a;
   --color-accent-glow: rgba(255, 85, 0, 0.2);
   --color-accent-selection: rgba(255, 85, 0, 0.3);
+  --color-accent-contrast: #ffffff;
   --font-sans: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
   --glass-blur: 40px;
+  --glass-blur-strong: 60px;
   --glass-blur-soft: 28px;
 }
 
@@ -35,6 +40,12 @@ html, body, #root {
 }
 
 #root { background: rgb(8, 8, 10); overflow: hidden; }
+
+main[data-scrolling] *,
+main[data-scrolling] *::before,
+main[data-scrolling] *::after {
+  pointer-events: none !important;
+}
 
 body { user-select: none; -webkit-user-select: none; }
 
@@ -60,6 +71,18 @@ input, textarea, select, [contenteditable="true"], .selectable {
   border: 1px solid rgba(255,255,255,0.05);
 }
 
+.glass-flat {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.glass-featured {
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(var(--glass-blur-strong)) saturate(2);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset, 0 8px 40px rgba(0,0,0,0.3);
+}
+
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.45; }
@@ -69,7 +92,24 @@ input, textarea, select, [contenteditable="true"], .selectable {
   animation: skeleton-pulse 1.6s ease-in-out infinite;
 }
 
-/* Now Playing Bar */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.5s var(--ease-apple) both; }
+
+.hero-greeting { color: rgba(255,255,255,0.96); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hero-greeting {
+    background-image: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0.8), rgba(255,85,0,0.8));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* ── Now Playing Bar ────────────────────────────────────────── */
 .npb {
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -101,7 +141,6 @@ input, textarea, select, [contenteditable="true"], .selectable {
   opacity: 0.85;
   transition: opacity 0.4s var(--ease-apple);
 }
-
 .npb:hover .npb-underglow { opacity: 1; }
 
 .npb-dock {
@@ -125,6 +164,7 @@ input, textarea, select, [contenteditable="true"], .selectable {
   border: 1px solid rgba(255,255,255,0.11);
   box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 -10px 26px -18px rgba(0,0,0,0.7) inset;
   backdrop-filter: blur(var(--glass-blur-soft)) saturate(1.6);
+  -webkit-backdrop-filter: blur(var(--glass-blur-soft)) saturate(1.6);
   contain: strict;
   transform: translateZ(0);
 }
@@ -137,6 +177,15 @@ input, textarea, select, [contenteditable="true"], .selectable {
   opacity: 0.5;
 }
 
+.npb-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 .npb-content {
   position: relative;
   z-index: 1;
@@ -147,11 +196,7 @@ input, textarea, select, [contenteditable="true"], .selectable {
   padding: 10px 18px 8px;
 }
 
-.npb-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.npb-row { display: flex; align-items: center; gap: 12px; }
 
 .npb-sep {
   width: 1px;
@@ -162,7 +207,8 @@ input, textarea, select, [contenteditable="true"], .selectable {
 
 .npb-art {
   position: relative;
-  width: 48px; height: 48px;
+  width: 48px;
+  height: 48px;
   flex: 0 0 auto;
   border-radius: 13px;
   overflow: hidden;
@@ -170,17 +216,28 @@ input, textarea, select, [contenteditable="true"], .selectable {
   box-shadow: 0 8px 20px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.1) inset;
   transition: transform 0.3s var(--ease-apple), box-shadow 0.3s var(--ease-apple);
 }
-
 .npb-art:hover {
   transform: scale(1.05) rotate(-1.5deg);
   box-shadow: 0 10px 26px -8px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 30px -8px var(--color-accent-glow);
 }
-
 .npb-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.npb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0 74%, rgba(255,255,255,0.55) 84%, transparent 92%);
+  -webkit-mask: radial-gradient(circle, transparent 56%, #000 58%);
+  mask: radial-gradient(circle, transparent 56%, #000 58%);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-apple);
+}
 
 .npb-eq {
   position: absolute;
-  left: 6px; bottom: 6px;
+  left: 6px;
+  bottom: 6px;
   display: flex;
   align-items: flex-end;
   gap: 1.5px;
@@ -189,9 +246,9 @@ input, textarea, select, [contenteditable="true"], .selectable {
   transition: opacity 0.3s var(--ease-apple);
   pointer-events: none;
 }
-
 .npb-eq i {
-  width: 2px; height: 11px;
+  width: 2px;
+  height: 11px;
   border-radius: 1px;
   background: #fff;
   box-shadow: 0 0 6px var(--color-accent-glow);
@@ -199,6 +256,10 @@ input, textarea, select, [contenteditable="true"], .selectable {
   transform: scaleY(0.32);
 }
 
+.npb-dock[data-playing="true"] .npb-ring {
+  opacity: 0.5;
+  animation: npb-spin 7s linear infinite;
+}
 .npb-dock[data-playing="true"] .npb-eq { opacity: 1; }
 .npb-dock[data-playing="true"] .npb-eq i { animation: npb-eq 900ms ease-in-out infinite; }
 .npb-eq i:nth-child(1) { animation-delay: -200ms; }
@@ -206,6 +267,7 @@ input, textarea, select, [contenteditable="true"], .selectable {
 .npb-eq i:nth-child(3) { animation-delay: -80ms; }
 .npb-eq i:nth-child(4) { animation-delay: -380ms; }
 
+@keyframes npb-spin { to { transform: rotate(360deg); } }
 @keyframes npb-eq {
   0%, 100% { transform: scaleY(0.32); }
   50% { transform: scaleY(1); }
@@ -214,17 +276,24 @@ input, textarea, select, [contenteditable="true"], .selectable {
 .npb-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; max-width: 150px; }
 
 .npb-ttl {
-  font-size: 13px; font-weight: 650; letter-spacing: -0.01em;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   color: rgba(255,255,255,0.95);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
   transition: color 0.2s var(--ease-apple);
 }
 .npb-ttl:hover { color: #fff; }
 
 .npb-sub {
-  display: flex; align-items: center; gap: 4px;
-  font-size: 11px; font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
   color: rgba(255,255,255,0.5);
   min-width: 0;
 }
@@ -232,7 +301,8 @@ input, textarea, select, [contenteditable="true"], .selectable {
 
 .npb-play {
   position: relative;
-  width: 48px; height: 48px;
+  width: 48px;
+  height: 48px;
   flex: 0 0 auto;
   margin: 0 3px;
   display: grid;
@@ -247,10 +317,18 @@ input, textarea, select, [contenteditable="true"], .selectable {
 .npb-play:hover { transform: translateY(-1px) scale(1.06); }
 .npb-play:active { transform: scale(0.95); }
 
+.npb-play::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 1.5px solid var(--color-accent);
+  opacity: 0;
+}
 .npb-dock[data-playing="true"] .npb-play::after {
   animation: npb-pulse 2.8s var(--ease-apple) infinite;
 }
-
 @keyframes npb-pulse {
   0% { transform: scale(1); opacity: 0.7; }
   70% { transform: scale(1.4); opacity: 0; }
@@ -262,7 +340,8 @@ input, textarea, select, [contenteditable="true"], .selectable {
 .npb-times {
   display: flex;
   justify-content: space-between;
-  font-size: 9.5px; font-weight: 600;
+  font-size: 9.5px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   color: rgba(255,255,255,0.42);
@@ -270,14 +349,7 @@ input, textarea, select, [contenteditable="true"], .selectable {
 }
 .npb-times b { color: rgba(255,255,255,0.9); font-weight: 700; }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in-up { animation: fadeInUp 0.5s var(--ease-apple) both; }
-
-input:focus,
-input:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
+@media (max-width: 1040px) {
+  .npb .npb-vol-slider { display: none; }
+  .npb-txt { max-width: 112px; }
 }
