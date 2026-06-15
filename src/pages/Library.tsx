@@ -1,7 +1,10 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getFeaturedTracks, getLikedTracks } from "../api/soundcloud";
+import { useMemo } from "react";
+import { getFeaturedTracks, getLikedTracks, formatDuration } from "../api/soundcloud";
 import TrackCard from "../components/TrackCard";
+import { useHistoryStore, type HistoryEntry } from "../store/historyStore";
+import { usePlayerStore } from "../store/playerStore";
 
 const tabs = [
   { to: "/library", label: "Overview", end: true },
@@ -12,6 +15,18 @@ const tabs = [
   { to: "/library/following", label: "Following" },
   { to: "/library/history", label: "History" },
 ];
+
+const PlayIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 20 20" fill="white">
+    <path d="M5 3.5l12 6.5-12 6.5V3.5z" />
+  </svg>
+);
+
+const MusicIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+  </svg>
+);
 
 function TabBar() {
   return (
@@ -138,6 +153,128 @@ function Likes() {
   );
 }
 
+function formatHistoryDate(timestamp: number): string {
+  const d = new Date(timestamp);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+  if (dayStart.getTime() === today.getTime()) return "Today";
+  if (dayStart.getTime() === yesterday.getTime()) return "Yesterday";
+  return "Earlier";
+}
+
+type HistoryRow =
+  | { type: "header"; id: string; label: string }
+  | { type: "entry"; id: string; entry: HistoryEntry };
+
+function History() {
+  const entries = useHistoryStore((s) => s.entries);
+  const clear = useHistoryStore((s) => s.clear);
+  const setQueue = usePlayerStore((s) => s.setQueue);
+  const setTrack = usePlayerStore((s) => s.setTrack);
+
+  const rows = useMemo<HistoryRow[]>(() => {
+    const flat: HistoryRow[] = [];
+    let currentLabel = "";
+    for (const entry of entries) {
+      const label = formatHistoryDate(entry.playedAt);
+      if (label !== currentLabel) {
+        currentLabel = label;
+        flat.push({ type: "header", id: `header:${label}`, label });
+      }
+      flat.push({ type: "entry", id: `${entry.track.id}:${entry.playedAt}`, entry });
+    }
+    return flat;
+  }, [entries]);
+
+  if (entries.length === 0) {
+    return (
+      <div className="px-8">
+        <Empty label="No history yet" />
+      </div>
+    );
+  }
+
+  const allTracks = entries.map((e) => e.track);
+
+  return (
+    <div className="px-8">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={clear}
+          className="text-[12px] text-white/30 hover:text-red-400 transition-colors cursor-pointer"
+        >
+          Clear history
+        </button>
+      </div>
+
+      <div className="flex flex-col">
+        {rows.map((row) =>
+          row.type === "header" ? (
+            <div key={row.id} className="py-3">
+              <h3 className="text-[13px] font-bold text-white/30 uppercase tracking-wider px-1">
+                {row.label}
+              </h3>
+            </div>
+          ) : (
+            <div
+              key={row.id}
+              className="group flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <button
+                type="button"
+                className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 ring-1 ring-white/[0.08] shadow-md cursor-pointer"
+                onClick={() => {
+                  setQueue(allTracks);
+                  setTrack(row.entry.track);
+                }}
+              >
+                {row.entry.track.artwork ? (
+                  <img
+                    src={row.entry.track.artwork}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    decoding="async"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/[0.05] to-transparent text-white/20">
+                    <MusicIcon />
+                  </div>
+                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-white">
+                  <PlayIcon />
+                </div>
+              </button>
+
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <p className="text-[14px] font-medium truncate text-white/90">
+                  {row.entry.track.title}
+                </p>
+                <p className="text-[12px] text-white/40 truncate mt-0.5">
+                  {row.entry.track.artist}
+                </p>
+              </div>
+
+              <span className="text-[11px] text-white/20 tabular-nums shrink-0">
+                {formatDuration(row.entry.track.duration)}
+              </span>
+
+              <span className="text-[11px] text-white/20 tabular-nums shrink-0 w-12 text-right">
+                {new Date(row.entry.playedAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Library() {
   return (
     <div className="w-full max-w-[1480px] mx-auto pt-8 pb-32">
@@ -149,7 +286,7 @@ export default function Library() {
         <Route path="/albums" element={<div className="px-8"><Empty label="No albums yet" /></div>} />
         <Route path="/stations" element={<div className="px-8"><Empty label="No stations yet" /></div>} />
         <Route path="/following" element={<div className="px-8"><Empty label="Not following anyone yet" /></div>} />
-        <Route path="/history" element={<div className="px-8"><Empty label="No history yet" /></div>} />
+        <Route path="/history" element={<History />} />
       </Routes>
     </div>
   );

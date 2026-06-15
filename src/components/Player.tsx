@@ -38,6 +38,12 @@ const RepeatIcon = () => (
     <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
   </svg>
 );
+const RepeatOneIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+    <text x="11" y="15" fontSize="8" fontWeight="700" stroke="none" fill="currentColor">1</text>
+  </svg>
+);
 
 function ProgressSlider({ progress, duration, onSeek }: { progress: number; duration: number; onSeek: (t: number) => void }) {
   return (
@@ -77,13 +83,16 @@ function VolumeSlider({ volume, onChange }: { volume: number; onChange: (v: numb
 }
 
 const btnClass = "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer hover:bg-white/[0.08] hover:-translate-y-px active:scale-90 text-white/55 hover:text-white";
-const btnSmClass = "w-[30px] h-[30px] rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer hover:bg-white/[0.08] hover:-translate-y-px active:scale-90 text-white/55 hover:text-white";
+
+const btnSmClass = "relative w-[30px] h-[30px] rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer hover:bg-white/[0.08] hover:-translate-y-px active:scale-90 text-white/55 hover:text-white";
+const btnSmActiveClass = "relative w-[30px] h-[30px] rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer hover:-translate-y-px active:scale-90";
 
 export default function Player() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const {
-    currentTrack, isPlaying, volume, progress, duration,
+    currentTrack, isPlaying, volume, progress, duration, shuffle, repeat,
     togglePlay, setVolume, setProgress, setDuration, nextTrack, prevTrack,
+    toggleShuffle, cycleRepeat, onTrackEnded,
   } = usePlayerStore();
 
   useEffect(() => {
@@ -105,6 +114,14 @@ export default function Player() {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
+  // когда включается "repeat one" и трек уже доиграл — перематываем на 0
+  useEffect(() => {
+    if (audioRef.current && progress === 0 && isPlaying) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
+    }
+  }, [progress, isPlaying]);
+
   const handleTimeUpdate = () => {
     if (!audioRef.current) return;
     setProgress(audioRef.current.currentTime);
@@ -115,7 +132,7 @@ export default function Player() {
 
   return (
     <div className="npb">
-      <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onEnded={nextTrack} />
+      <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onEnded={onTrackEnded} />
       <div className="npb-underglow" />
 
       <div className="npb-dock" data-playing={isPlaying ? "true" : "false"}>
@@ -139,7 +156,20 @@ export default function Player() {
 
             {/* Playback controls */}
             <div className="flex items-center gap-0.5">
-              <button className={btnSmClass}><ShuffleIcon /></button>
+              <button
+                className={shuffle ? btnSmActiveClass : btnSmClass}
+                style={shuffle ? { color: "var(--color-accent)" } : undefined}
+                onClick={toggleShuffle}
+                title="Shuffle"
+              >
+                <ShuffleIcon />
+                {shuffle && (
+                  <span
+                    className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                    style={{ background: "var(--color-accent)", boxShadow: "0 0 6px var(--color-accent-glow)" }}
+                  />
+                )}
+              </button>
               <button className={btnClass} onClick={prevTrack}><SkipBackIcon /></button>
               <button className="npb-play" onClick={togglePlay}>
                 {isPlaying ? (
@@ -154,7 +184,20 @@ export default function Player() {
                 )}
               </button>
               <button className={btnClass} onClick={nextTrack}><SkipForwardIcon /></button>
-              <button className={btnSmClass}><RepeatIcon /></button>
+              <button
+                className={repeat !== "off" ? btnSmActiveClass : btnSmClass}
+                style={repeat !== "off" ? { color: "var(--color-accent)" } : undefined}
+                onClick={cycleRepeat}
+                title={`Repeat: ${repeat}`}
+              >
+                {repeat === "one" ? <RepeatOneIcon /> : <RepeatIcon />}
+                {repeat !== "off" && (
+                  <span
+                    className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                    style={{ background: "var(--color-accent)", boxShadow: "0 0 6px var(--color-accent-glow)" }}
+                  />
+                )}
+              </button>
             </div>
 
             <div className="npb-sep" />

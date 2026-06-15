@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useHistoryStore } from "./historyStore";
 
 export interface Track {
   id: number;
@@ -12,6 +13,8 @@ export interface Track {
   permalinkUrl: string;
 }
 
+export type RepeatMode = "off" | "all" | "one";
+
 interface PlayerStore {
   currentTrack: Track | null;
   queue: Track[];
@@ -19,6 +22,8 @@ interface PlayerStore {
   volume: number;
   progress: number;
   duration: number;
+  shuffle: boolean;
+  repeat: RepeatMode;
   setTrack: (track: Track) => void;
   setQueue: (tracks: Track[]) => void;
   togglePlay: () => void;
@@ -27,6 +32,9 @@ interface PlayerStore {
   setDuration: (duration: number) => void;
   nextTrack: () => void;
   prevTrack: () => void;
+  toggleShuffle: () => void;
+  cycleRepeat: () => void;
+  onTrackEnded: () => void;
 }
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
@@ -36,27 +44,79 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   volume: 0.8,
   progress: 0,
   duration: 0,
+  shuffle: false,
+  repeat: "off",
 
-  setTrack: (track) => set({ currentTrack: track, isPlaying: true }),
+  setTrack: (track) => {
+    useHistoryStore.getState().addEntry(track);
+    set({ currentTrack: track, isPlaying: true });
+  },
+
   setQueue: (tracks) => set({ queue: tracks }),
   togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
   setVolume: (volume) => set({ volume }),
   setProgress: (progress) => set({ progress }),
   setDuration: (duration) => set({ duration }),
 
+  toggleShuffle: () => set((state) => ({ shuffle: !state.shuffle })),
+
+  cycleRepeat: () =>
+    set((state) => ({
+      repeat: state.repeat === "off" ? "all" : state.repeat === "all" ? "one" : "off",
+    })),
+
   nextTrack: () => {
-    const { queue, currentTrack } = get();
+    const { queue, currentTrack, shuffle, repeat } = get();
     if (!currentTrack || queue.length === 0) return;
     const index = queue.findIndex((t) => t.id === currentTrack.id);
-    const next = queue[index + 1];
-    if (next) set({ currentTrack: next, isPlaying: true, progress: 0 });
+
+    if (shuffle && queue.length > 1) {
+      let randIndex = index;
+      while (randIndex === index) randIndex = Math.floor(Math.random() * queue.length);
+      const track = queue[randIndex];
+      useHistoryStore.getState().addEntry(track);
+      set({ currentTrack: track, isPlaying: true, progress: 0 });
+      return;
+    }
+
+    let next = queue[index + 1];
+    if (!next && repeat === "all") next = queue[0];
+    if (next) {
+      useHistoryStore.getState().addEntry(next);
+      set({ currentTrack: next, isPlaying: true, progress: 0 });
+    } else {
+      set({ isPlaying: false, progress: 0 });
+    }
   },
 
   prevTrack: () => {
-    const { queue, currentTrack } = get();
+    const { queue, currentTrack, shuffle, repeat } = get();
     if (!currentTrack || queue.length === 0) return;
     const index = queue.findIndex((t) => t.id === currentTrack.id);
-    const prev = queue[index - 1];
-    if (prev) set({ currentTrack: prev, isPlaying: true, progress: 0 });
+
+    if (shuffle && queue.length > 1) {
+      let randIndex = index;
+      while (randIndex === index) randIndex = Math.floor(Math.random() * queue.length);
+      const track = queue[randIndex];
+      useHistoryStore.getState().addEntry(track);
+      set({ currentTrack: track, isPlaying: true, progress: 0 });
+      return;
+    }
+
+    let prev = queue[index - 1];
+    if (!prev && repeat === "all") prev = queue[queue.length - 1];
+    if (prev) {
+      useHistoryStore.getState().addEntry(prev);
+      set({ currentTrack: prev, isPlaying: true, progress: 0 });
+    }
+  },
+
+  onTrackEnded: () => {
+    const { repeat, nextTrack } = get();
+    if (repeat === "one") {
+      set({ progress: 0, isPlaying: true });
+      return;
+    }
+    nextTrack();
   },
 }));

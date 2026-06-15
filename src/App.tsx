@@ -6,6 +6,7 @@ import Search from "./pages/Search";
 import Library from "./pages/Library";
 import Feed from "./pages/Feed";
 import Login from "./pages/Login";
+import Settings from "./pages/Settings";
 import { usePlayerStore } from "./store/playerStore";
 import { useAuthStore } from "./store/authStore";
 import { useRef, useEffect } from "react";
@@ -75,6 +76,8 @@ export default function App() {
             <Route path="/discover" element={<Home />} />
             <Route path="/library/*" element={<Library />} />
             <Route path="/offline" element={<Feed />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </main>
       </div>
