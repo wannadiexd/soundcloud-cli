@@ -4,7 +4,7 @@ import Player from "./components/Player";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Library from "./pages/Library";
-import Feed from "./pages/Feed";
+import Discover from "./pages/Discover";
 import Login from "./pages/Login";
 import Settings from "./pages/Settings";
 import { usePlayerStore } from "./store/playerStore";
@@ -73,9 +73,9 @@ export default function App() {
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<Home />} />
             <Route path="/search" element={<Search />} />
-            <Route path="/discover" element={<Home />} />
+            <Route path="/discover" element={<Discover />} />
             <Route path="/library/*" element={<Library />} />
-            <Route path="/offline" element={<Feed />} />
+            <Route path="/offline" element={<Discover />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>

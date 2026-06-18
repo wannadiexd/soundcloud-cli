@@ -13,11 +13,11 @@ const PanelCloseIcon = () => <svg width="17" height="17" viewBox="0 0 24 24" fil
 const PanelOpenIcon = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg>;
 
 const navItems = [
-  { to: "/home", icon: HomeIcon, label: "Home" },
-  { to: "/search", icon: SearchIcon, label: "Search" },
+  { to: "/home",     icon: HomeIcon,    label: "Home" },
+  { to: "/search",   icon: SearchIcon,  label: "Search" },
   { to: "/discover", icon: CompassIcon, label: "Discover" },
-  { to: "/library", icon: LibraryIcon, label: "Library" },
-  { to: "/offline", icon: DownloadIcon, label: "Offline" },
+  { to: "/library",  icon: LibraryIcon, label: "Library" },
+  { to: "/offline",  icon: DownloadIcon,label: "Offline" },
 ];
 
 const LABEL_T = "max-width 320ms cubic-bezier(0.2,0.8,0.2,1), opacity 240ms ease, padding-left 320ms cubic-bezier(0.2,0.8,0.2,1)";
@@ -51,7 +51,6 @@ export default function Sidebar() {
       className="shrink-0 flex flex-col h-full overflow-hidden border-r border-white/[0.05] pb-3 transition-[width] duration-300"
       style={{ width: collapsed ? 56 : 196, transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}
     >
-      {/* Nav */}
       <nav className="flex flex-col gap-0.5 px-2 pt-3">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
@@ -69,20 +68,21 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Quick access */}
       <div className="px-2 pt-4 space-y-0.5">
         <div className="relative h-5 mx-1 mb-0.5">
-          <span className="absolute inset-x-0 top-1/2 h-px bg-white/[0.07]"
+          <span
+            className="absolute inset-x-0 top-1/2 h-px bg-white/[0.07]"
             style={{ opacity: collapsed ? 1 : 0, transition: "opacity 240ms ease" }}
           />
-          <span className="absolute inset-0 flex items-center px-2 text-[10px] uppercase tracking-[0.18em] text-white/25 font-semibold whitespace-nowrap"
+          <span
+            className="absolute inset-0 flex items-center px-2 text-[10px] uppercase tracking-[0.18em] text-white/25 font-semibold whitespace-nowrap"
             style={{ opacity: collapsed ? 0 : 1, transition: "opacity 240ms ease" }}
           >
             Quick access
           </span>
         </div>
         <NavLink
-          to="/library?tab=history"
+          to="/library/history"
           title={collapsed ? "History" : undefined}
           className={({ isActive }) =>
             `${ROW} ${isActive ? "" : "text-white/45 hover:text-white/80 hover:bg-white/[0.05]"}`
@@ -96,7 +96,6 @@ export default function Sidebar() {
 
       <div className="flex-1" />
 
-      {/* Bottom */}
       <div className="px-2 flex flex-col gap-0.5">
         <NavLink
           to="/settings"
@@ -117,7 +116,6 @@ export default function Sidebar() {
           <Label collapsed={collapsed}>Collapse</Label>
         </button>
 
-        {/* User avatar */}
         {user && (
           <button
             onClick={() => navigate("/settings")}
