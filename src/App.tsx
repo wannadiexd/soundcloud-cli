@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import Offline from "./pages/Offline";
 import Sidebar from "./components/Sidebar";
 import Player from "./components/Player";
 import Home from "./pages/Home";
@@ -77,6 +78,7 @@ export default function App() {
             <Route path="/library/*" element={<Library />} />
             <Route path="/offline" element={<Discover />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/offline" element={<Offline />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </main>
