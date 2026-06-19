@@ -11,6 +11,7 @@ export interface Track {
   likesCount: number;
   playbackCount: number;
   permalinkUrl: string;
+  userId?: number;
 }
 
 export type RepeatMode = "off" | "all" | "one";

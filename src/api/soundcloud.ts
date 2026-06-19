@@ -1,4 +1,5 @@
 const CLIENT_ID = "QNR5nrdLOvApYERC8AOUr3VjRfHnLjle";
+import type { Track } from "../store/playerStore";
 const BACKEND = "/sc-auth";  // api.scdinternal.site
 const SC_API = "/sc-api";    // api-v2.soundcloud.com (публичные запросы)
 
@@ -34,17 +35,18 @@ async function fetchSC(endpoint: string, params: Record<string, string> = {}) {
   return res.json();
 }
 
-function mapTrack(track: any) {
+function mapTrack(track: any): Track {
   return {
     id: track.id,
     title: track.title,
-    artist: track.user?.username || track.artist || "Unknown",
-    artwork: (track.artwork_url || track.cover_url || "")?.replace("large", "t300x300"),
+    artist: track.user?.username ?? "Unknown",
+    artwork: track.artwork_url?.replace("large", "t300x300") ?? "",
     streamUrl: "",
-    duration: track.full_duration || track.duration || 0,
-    likesCount: track.likes_count || 0,
-    playbackCount: track.playback_count || 0,
-    permalinkUrl: track.permalink_url || "",
+    duration: track.full_duration || track.duration,
+    likesCount: track.likes_count ?? 0,
+    playbackCount: track.playback_count ?? 0,
+    permalinkUrl: track.permalink_url ?? "",
+    userId: track.user_id ?? track.user?.id,
   };
 }
 

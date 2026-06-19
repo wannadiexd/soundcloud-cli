@@ -83,10 +83,10 @@ export default function App() {
             <Route path="/library/*" element={<Library />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/offline" element={<Offline />} />
-            <Route path="*" element={<Navigate to="/home" replace />} />
             <Route path="/track/:id" element={<TrackPage />} />
             <Route path="/user/:id" element={<UserPage />} />
             <Route path="/playlist/:id" element={<PlaylistPage />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
           </ErrorBoundary>
         </main>

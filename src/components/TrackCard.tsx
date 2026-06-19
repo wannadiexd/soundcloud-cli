@@ -97,9 +97,15 @@ export default function TrackCard({ track, queue }: Props) {
         >
           {track.title}
         </p>
-        <p className="text-[11px] truncate mt-0.5 text-white/35 transition-colors duration-150">
-          {track.artist}
-        </p>
+        <p
+  className="text-[11px] truncate mt-0.5 text-white/35 hover:text-white/60 transition-colors duration-150 cursor-pointer"
+  onClick={(e) => {
+    e.stopPropagation();
+    if (track.userId) navigate(`/user/${track.userId}`);
+  }}
+>
+  {track.artist}
+</p>
         {track.playbackCount != null && (
           <p className="text-[10px] text-white/20 mt-1 tabular-nums">
             {formatCount(track.playbackCount)} plays

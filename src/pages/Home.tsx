@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getFeaturedTracks } from "../api/soundcloud";
+import { getFeaturedTracks, getLikedTracks } from "../api/soundcloud";
+import { useHistoryStore } from "../store/historyStore";
 import TrackCard from "../components/TrackCard";
 import type { Track } from "../store/playerStore";
 
@@ -22,11 +23,15 @@ function SubShelf({
   label,
   isLoading,
   tracks,
+  count,
+  onSeeAll,
 }: {
   index: string;
   label: string;
-  isLoading: boolean;
+  isLoading?: boolean;
   tracks: Track[];
+  count?: number;
+  onSeeAll?: () => void;
 }) {
   if (!isLoading && tracks.length === 0) return null;
   return (
@@ -36,7 +41,19 @@ function SubShelf({
         <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-white/55">
           {label}
         </span>
+        {count != null && (
+          <span className="text-[11px] text-white/25 tabular-nums">{count}</span>
+        )}
         <span className="h-px flex-1 bg-white/[0.05]" />
+        {onSeeAll && (
+          <button
+            type="button"
+            onClick={onSeeAll}
+            className="text-[11px] text-white/35 hover:text-white/70 transition-colors cursor-pointer shrink-0"
+          >
+            See all →
+          </button>
+        )}
       </div>
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
         {isLoading ? (
@@ -54,14 +71,19 @@ function SubShelf({
 }
 
 export default function Home() {
+  const historyEntries = useHistoryStore((s) => s.entries);
+  const recentTracks = historyEntries.slice(0, 20).map((e) => e.track);
+
   const { data: trending, isLoading: trendingLoading } = useQuery({
     queryKey: ["trending"],
     queryFn: () => getFeaturedTracks(20),
+    staleTime: 1000 * 60 * 5,
   });
 
-  const { data: recommended, isLoading: recommendedLoading } = useQuery({
-    queryKey: ["recommended"],
-    queryFn: () => getFeaturedTracks(20),
+  const { data: liked, isLoading: likedLoading } = useQuery({
+    queryKey: ["likedTracks"],
+    queryFn: () => getLikedTracks(20),
+    staleTime: 1000 * 60 * 5,
   });
 
   return (
@@ -76,17 +98,26 @@ export default function Home() {
           </p>
         </div>
         <div className="flex flex-col gap-8">
+          {recentTracks.length > 0 && (
+            <SubShelf
+              index="01"
+              label="Jump back in"
+              tracks={recentTracks}
+              count={recentTracks.length}
+            />
+          )}
           <SubShelf
-            index="01"
+            index={recentTracks.length > 0 ? "02" : "01"}
             label="Trending now"
             isLoading={trendingLoading}
             tracks={trending ?? []}
           />
           <SubShelf
-            index="02"
-            label="Recommended"
-            isLoading={recommendedLoading}
-            tracks={recommended ?? []}
+            index={recentTracks.length > 0 ? "03" : "02"}
+            label="Liked tracks"
+            isLoading={likedLoading}
+            tracks={liked ?? []}
+            count={liked?.length}
           />
         </div>
       </section>
