@@ -207,3 +207,45 @@ export async function getUserLikes(userId: string, limit = 20) {
   });
   return (data.collection ?? []).map((item: any) => mapTrack(item.track ?? item));
 }
+
+export async function getPlaylist(playlistId: string) {
+  const data = await fetchSC(`/playlists/${playlistId}`);
+  if (!data?.id) throw new Error("Playlist not found");
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description?.trim() || null,
+    artwork: data.artwork_url?.replace("large", "t300x300") || null,
+    trackCount: data.track_count || 0,
+    duration: data.duration || 0,
+    isAlbum: data.is_album || false,
+    kind: data.kind || "playlist",
+    genre: data.genre || null,
+    lastModified: data.last_modified || null,
+    likesCount: data.likes_count || 0,
+    permalinkUrl: data.permalink_url || null,
+    user: {
+      id: String(data.user?.id || ""),
+      username: data.user?.username || "Unknown",
+      avatar: data.user?.avatar_url?.replace("large", "small") || null,
+      followersCount: data.user?.followers_count ?? null,
+      trackCount: data.user?.track_count ?? null,
+    },
+    tracks: (data.tracks || [])
+      .filter((t: any) => t?.id)
+      .map((t: any) => ({
+        id: t.id,
+        title: t.title || "Unknown",
+        artist: t.user?.username || "Unknown",
+        artwork: t.artwork_url?.replace("large", "t300x300") || null,
+        duration: t.full_duration || t.duration || 0,
+        playbackCount: t.playback_count || 0,
+        likesCount: t.likes_count || 0,
+        streamUrl: "",
+        permalinkUrl: t.permalink_url || "",
+        genre: t.genre || null,
+        userId: String(t.user?.id || ""),
+        userAvatar: t.user?.avatar_url?.replace("large", "small") || null,
+      })),
+  };
+}

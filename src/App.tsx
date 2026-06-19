@@ -14,6 +14,8 @@ import { useRef, useEffect } from "react";
 import Titlebar from "./components/Titlebar";
 import TrackPage from "./pages/TrackPage";
 import UserPage from "./pages/UserPage";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import PlaylistPage from "./pages/PlaylistPage";
 
 function AmbientGlow() {
   const track = usePlayerStore((s) => s.currentTrack);
@@ -72,6 +74,7 @@ export default function App() {
           ref={mainRef}
           className="flex-1 overflow-y-auto overflow-x-hidden pb-[136px]"
         >
+          <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<Home />} />
@@ -83,10 +86,13 @@ export default function App() {
             <Route path="*" element={<Navigate to="/home" replace />} />
             <Route path="/track/:id" element={<TrackPage />} />
             <Route path="/user/:id" element={<UserPage />} />
+            <Route path="/playlist/:id" element={<PlaylistPage />} />
           </Routes>
+          </ErrorBoundary>
         </main>
       </div>
       <Player />
     </div>
   );
 }
+
