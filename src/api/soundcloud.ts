@@ -143,3 +143,67 @@ export function formatCount(count: number): string {
   if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
   return String(count);
 }
+
+export async function getTrack(trackId: number) {
+  const data = await fetchSC(`/tracks/${trackId}`);
+  return {
+    ...mapTrack(data),
+    description: data.description || "",
+    genre: data.genre || "",
+    tagList: data.tag_list || "",
+    commentCount: data.comment_count || 0,
+    releaseYear: data.release_year || null,
+    userId: data.user?.id,
+    userAvatar: data.user?.avatar_url || "",
+  };
+}
+
+export async function getRelatedTracks(trackId: number, limit = 10) {
+  const data = await fetchSC(`/tracks/${trackId}/related`, {
+    limit: String(limit),
+  });
+  return (data.collection ?? []).map((item: any) => mapTrack(item));
+}
+
+export async function getTrackComments(trackId: number, limit = 20) {
+  const data = await fetchSC(`/tracks/${trackId}/comments`, {
+    limit: String(limit),
+  });
+  return data.collection ?? [];
+}
+
+export async function getUser(userId: string) {
+  const data = await fetchSC(`/users/${encodeURIComponent(userId)}`);
+  return {
+    id: data.id,
+    urn: data.urn,
+    username: data.username,
+    fullName: data.full_name || "",
+    avatar: data.avatar_url?.replace("large", "t300x300") || "",
+    banner: data.visuals?.visuals?.[0]?.visual_url || "",
+    description: data.description || "",
+    followersCount: data.followers_count || 0,
+    followingsCount: data.followings_count || 0,
+    trackCount: data.track_count || 0,
+    playlistCount: data.playlist_count || 0,
+    likesCount: data.public_favorites_count || 0,
+    city: data.city || "",
+    country: data.country_code || "",
+    verified: data.verified || false,
+    permalinkUrl: data.permalink_url || "",
+  };
+}
+
+export async function getUserTracks(userId: string, limit = 20) {
+  const data = await fetchSC(`/users/${encodeURIComponent(userId)}/tracks`, {
+    limit: String(limit),
+  });
+  return (data.collection ?? []).map((item: any) => mapTrack(item));
+}
+
+export async function getUserLikes(userId: string, limit = 20) {
+  const data = await fetchSC(`/users/${encodeURIComponent(userId)}/likes/tracks`, {
+    limit: String(limit),
+  });
+  return (data.collection ?? []).map((item: any) => mapTrack(item.track ?? item));
+}

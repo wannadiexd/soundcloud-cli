@@ -1,5 +1,6 @@
 import { usePlayerStore } from "../store/playerStore";
 import { formatDuration, formatCount, getStreamUrl } from "../api/soundcloud";
+import { useNavigate } from "react-router-dom";
 import type { Track } from "../store/playerStore";
 
 interface Props {
@@ -21,6 +22,7 @@ const PauseIcon = () => (
 
 export default function TrackCard({ track, queue }: Props) {
   const { setTrack, setQueue, currentTrack, isPlaying, togglePlay } = usePlayerStore();
+  const navigate = useNavigate();
   const isThisPlaying = currentTrack?.id === track.id && isPlaying;
   const isThisTrack = currentTrack?.id === track.id;
 
@@ -65,7 +67,6 @@ export default function TrackCard({ track, queue }: Props) {
             </svg>
           </div>
         )}
-
         <div
           className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
             isThisTrack
@@ -82,7 +83,6 @@ export default function TrackCard({ track, queue }: Props) {
             {isThisPlaying ? <PauseIcon /> : <PlayIcon />}
           </div>
         </div>
-
         <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <div className="text-[10px] font-medium bg-black/50 backdrop-blur-md text-white/80 px-2 py-0.5 rounded-full">
             {formatDuration(track.duration)}
@@ -91,7 +91,10 @@ export default function TrackCard({ track, queue }: Props) {
       </div>
 
       <div className="mt-3 min-w-0">
-        <p className="text-[13px] font-medium truncate leading-snug text-white/90 hover:text-white transition-colors duration-150 cursor-pointer">
+        <p
+          className="text-[13px] font-medium truncate leading-snug text-white/90 hover:text-white transition-colors duration-150 cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); navigate(`/track/${track.id}`); }}
+        >
           {track.title}
         </p>
         <p className="text-[11px] truncate mt-0.5 text-white/35 transition-colors duration-150">

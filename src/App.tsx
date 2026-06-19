@@ -12,6 +12,8 @@ import { usePlayerStore } from "./store/playerStore";
 import { useAuthStore } from "./store/authStore";
 import { useRef, useEffect } from "react";
 import Titlebar from "./components/Titlebar";
+import TrackPage from "./pages/TrackPage";
+import UserPage from "./pages/UserPage";
 
 function AmbientGlow() {
   const track = usePlayerStore((s) => s.currentTrack);
@@ -76,10 +78,11 @@ export default function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/discover" element={<Discover />} />
             <Route path="/library/*" element={<Library />} />
-            <Route path="/offline" element={<Discover />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/offline" element={<Offline />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="/track/:id" element={<TrackPage />} />
+            <Route path="/user/:id" element={<UserPage />} />
           </Routes>
         </main>
       </div>

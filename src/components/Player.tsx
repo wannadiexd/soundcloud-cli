@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback, memo } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import { usePlayerStore } from "../store/playerStore";
 import { getStreamUrl, formatDuration } from "../api/soundcloud";
+import { useNavigate } from "react-router-dom";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const VolumeXIcon = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>;
@@ -273,6 +274,7 @@ const LikeButton = memo(function LikeButton({ trackId }: { trackId: number }) {
 // ── Main Player ────────────────────────────────────────────────────────────
 export default memo(function Player() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const navigate = useNavigate();
   const {
     currentTrack, isPlaying, volume, shuffle, repeat,
     togglePlay, setVolume, setProgress, setDuration,
@@ -354,7 +356,9 @@ export default memo(function Player() {
 
             {/* Track info */}
             <div className="npb-txt">
-              <div className="npb-ttl">{currentTrack.title}</div>
+              <div className="npb-ttl" onClick={() => navigate(`/track/${currentTrack.id}`)} style={{ cursor: "pointer" }}>
+  {currentTrack.title}
+</div>
               <div className="npb-sub"><span>{currentTrack.artist}</span></div>
             </div>
 
