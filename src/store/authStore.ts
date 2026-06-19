@@ -1,29 +1,45 @@
-import { create } from "zustand";
+import { create } from 'zustand';
+import { api } from '../lib/api-client';
 
 interface User {
   id: number;
   username: string;
-  avatar: string;
+  avatar_url: string;
+  permalink_url?: string;
+  followers_count?: number;
+  track_count?: number;
 }
 
 interface AuthStore {
   sessionId: string | null;
   user: User | null;
-  setSession: (sessionId: string) => void;
-  setUser: (user: User) => void;
+  isAuthenticated: boolean;
+  setSession: (sessionId: string) => Promise<void>;
+  fetchUser: () => Promise<void>;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  sessionId: localStorage.getItem("sc_session"),
+  sessionId: localStorage.getItem('sc_session'),
   user: null,
-  setSession: (sessionId) => {
-    localStorage.setItem("sc_session", sessionId);
+  isAuthenticated: false,
+
+  setSession: async (sessionId: string) => {
+    localStorage.setItem('sc_session', sessionId);
     set({ sessionId });
   },
-  setUser: (user) => set({ user }),
+
+  fetchUser: async () => {
+    try {
+      const user = await api<User>('/me/cold');
+      set({ user, isAuthenticated: true });
+    } catch {
+      set({ isAuthenticated: false });
+    }
+  },
+
   logout: () => {
-    localStorage.removeItem("sc_session");
-    set({ sessionId: null, user: null });
+    localStorage.removeItem('sc_session');
+    set({ sessionId: null, user: null, isAuthenticated: false });
   },
 }));

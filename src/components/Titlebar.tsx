@@ -60,7 +60,6 @@ export default function Titlebar() {
         style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent)" }}
       />
 
-      {/* LEFT */}
       <div className="flex items-center gap-2 shrink-0">
         <img
           src="/sc.png"
@@ -89,7 +88,6 @@ export default function Titlebar() {
         </button>
       </div>
 
-      {/* CENTER — search */}
       <div className="flex-1 flex justify-center min-w-0">
         <form
           onSubmit={(e) => { e.preventDefault(); if (q.trim()) navigate(`/search?q=${encodeURIComponent(q.trim())}`); }}
@@ -141,7 +139,6 @@ export default function Titlebar() {
         </form>
       </div>
 
-      {/* RIGHT — window controls */}
       <div className="flex items-center gap-0.5 shrink-0">
         <WinButton onClick={() => winAction("minimize")} label="Minimize"><MinusIcon /></WinButton>
         <WinButton onClick={() => winAction("toggleMaximize")} label="Maximize"><SquareIcon /></WinButton>

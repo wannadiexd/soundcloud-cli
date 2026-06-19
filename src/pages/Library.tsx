@@ -1,7 +1,7 @@
-import { memo, useMemo, useState } from "react";
-import { Routes, Route, NavLink, Link, useNavigate } from "react-router-dom";
+import { memo, useMemo } from "react";
+import { Routes, Route, NavLink, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getLikedTracks, getFeaturedTracks, formatDuration } from "../api/soundcloud";
+import { getLikedTracks, formatDuration } from "../api/soundcloud";
 import TrackCard from "../components/TrackCard";
 import { useHistoryStore, type HistoryEntry } from "../store/historyStore";
 import { usePlayerStore } from "../store/playerStore";
@@ -12,10 +12,8 @@ import { usePerfMode } from "../lib/perf";
 import { USER_PAGE_KEYFRAMES } from "../components/user/keyframes";
 import type { Track } from "../store/playerStore";
 
-// ── Icons ──────────────────────────────────────────────────────────────────
 const HeartIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>;
 const ClockIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-const ListIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>;
 const ChevronRightIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>;
 const ShuffleIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>;
 const PlayIcon = () => <svg width="14" height="14" viewBox="0 0 20 20" fill="white"><path d="M5 3.5l12 6.5-12 6.5V3.5z"/></svg>;
@@ -29,7 +27,6 @@ function greeting(): string {
   return "Good evening";
 }
 
-// ── Mosaic background ──────────────────────────────────────────────────────
 const ArtworkMosaic = memo(function ArtworkMosaic({ tracks }: { tracks: Track[] }) {
   const perf = usePerfMode();
   const covers = useMemo(
@@ -52,7 +49,6 @@ const ArtworkMosaic = memo(function ArtworkMosaic({ tracks }: { tracks: Track[] 
   );
 });
 
-// ── Masthead ───────────────────────────────────────────────────────────────
 const Masthead = memo(function Masthead({ likedTracks }: { likedTracks: Track[] }) {
   const user = useAuthStore((s) => s.user);
   const aura = useViewerAura();
@@ -104,7 +100,7 @@ const Masthead = memo(function Masthead({ likedTracks }: { likedTracks: Track[] 
               className="relative w-full h-full rounded-full overflow-hidden"
               style={{ border: `0.5px solid ${auraRgba(aura, 0.4)}`, boxShadow: `0 10px 34px ${auraRgba(aura, 0.4)}` }}
             >
-              <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
+              <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
             </div>
           </div>
         )}
@@ -139,7 +135,6 @@ const Masthead = memo(function Masthead({ likedTracks }: { likedTracks: Track[] 
   );
 });
 
-// ── Collection rail ────────────────────────────────────────────────────────
 const CollectionRail = memo(function CollectionRail({
   icon, title, count, to, children,
 }: {
@@ -171,11 +166,8 @@ const CollectionRail = memo(function CollectionRail({
   );
 });
 
-// ── Continue row (история) ─────────────────────────────────────────────────
 const ContinueRow = memo(function ContinueRow() {
   const entries = useHistoryStore((s) => s.entries);
-  const setTrack = usePlayerStore((s) => s.setTrack);
-  const setQueue = usePlayerStore((s) => s.setQueue);
 
   const tracks = useMemo(() => {
     const seen = new Set<number>();
@@ -202,7 +194,6 @@ const ContinueRow = memo(function ContinueRow() {
   );
 });
 
-// ── Hub (Overview) ─────────────────────────────────────────────────────────
 function Hub() {
   const { data: likedTracks = [] } = useQuery<Track[]>({
     queryKey: ["likedTracks"],
@@ -232,7 +223,6 @@ function Hub() {
   );
 }
 
-// ── Likes page ─────────────────────────────────────────────────────────────
 function Likes() {
   const { data: tracks = [], isLoading } = useQuery<Track[]>({
     queryKey: ["likedTracks"],
@@ -278,7 +268,6 @@ function Likes() {
   );
 }
 
-// ── History page ───────────────────────────────────────────────────────────
 function formatHistoryDate(ts: number): string {
   const d = new Date(ts);
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -364,7 +353,6 @@ function History() {
   );
 }
 
-// ── Empty state ────────────────────────────────────────────────────────────
 function Empty({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center h-64 gap-3">
@@ -376,7 +364,6 @@ function Empty({ label }: { label: string }) {
   );
 }
 
-// ── Tab bar ────────────────────────────────────────────────────────────────
 const tabs = [
   { to: "/library", label: "Overview", end: true },
   { to: "/library/likes", label: "Likes" },
@@ -406,10 +393,7 @@ function TabBar() {
   );
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────
 export default memo(function Library() {
-  const aura = useViewerAura();
-  const perf = usePerfMode();
 
   return (
     <div className="relative min-h-full w-full">

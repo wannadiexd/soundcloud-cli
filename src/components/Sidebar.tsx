@@ -123,7 +123,7 @@ export default function Sidebar() {
             title={collapsed ? user.username : undefined}
           >
             <span className="w-10 shrink-0 flex items-center justify-center">
-              <img src={user.avatar} alt={user.username} className="w-[26px] h-[26px] rounded-full object-cover ring-1 ring-white/10" />
+              <img src={user.avatar_url} alt={user.username} className="w-[26px] h-[26px] rounded-full object-cover ring-1 ring-white/10" />
             </span>
             <span
               className="overflow-hidden whitespace-nowrap text-[12.5px] text-white/55 font-medium truncate"

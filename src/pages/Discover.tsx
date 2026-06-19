@@ -18,7 +18,6 @@ import { getFeaturedTracks, searchTracks, formatDuration } from "../api/soundclo
 import { usePlayerStore } from "../store/playerStore";
 import type { Track } from "../store/playerStore";
 
-// ─── genres ────────────────────────────────────────────────────────────────
 const GENRES = [
   { id: "all",         label: "All",        color: "#a855f7", share: 0.14, query: "" },
   { id: "electronic", label: "Electronic", color: "#06b6d4", share: 0.13, query: "electronic" },
@@ -41,7 +40,6 @@ const SORT_TABS: ReadonlyArray<TabDescriptor<SortId>> = [
   { id: "popular",  label: "Popular" },
 ];
 
-// ─── CompassArtifact ───────────────────────────────────────────────────────
 const CompassArtifact = memo(function CompassArtifact({
   aura,
   idleAnim,
@@ -51,7 +49,6 @@ const CompassArtifact = memo(function CompassArtifact({
 }) {
   return (
     <div className="relative shrink-0 self-center lg:self-start w-[180px] h-[180px] md:w-[220px] md:h-[220px]">
-      {/* rotating conic ring */}
       <div
         className="absolute -inset-[5px] rounded-[2.4rem] pointer-events-none overflow-hidden"
         style={{
@@ -71,7 +68,6 @@ const CompassArtifact = memo(function CompassArtifact({
         />
       </div>
 
-      {/* inner box */}
       <div
         className="relative w-full h-full rounded-[2.2rem] overflow-hidden flex items-center justify-center"
         style={{
@@ -86,7 +82,7 @@ const CompassArtifact = memo(function CompassArtifact({
             mixBlendMode: "overlay",
           }}
         />
-        {/* compass SVG */}
+
         <div
           className="relative text-white"
           style={{
@@ -108,7 +104,6 @@ const CompassArtifact = memo(function CompassArtifact({
   );
 });
 
-// ─── Hero ──────────────────────────────────────────────────────────────────
 const DiscoverHero = memo(function DiscoverHero({
   aura,
   onSurpriseMe,
@@ -183,7 +178,6 @@ const DiscoverHero = memo(function DiscoverHero({
           </div>
         </div>
 
-        {/* right stats */}
         <div className="hidden xl:flex flex-col gap-3 self-stretch min-w-[200px]">
           {[
             { label: "Genres", value: fc(GENRES.length - 1), icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> },
@@ -218,7 +212,6 @@ const DiscoverHero = memo(function DiscoverHero({
   );
 });
 
-// ─── Spotlight (horizontal scroll of track cards styled как album cards) ───
 const SpotlightCard = memo(function SpotlightCard({ track, aura }: { track: Track; aura: ReturnType<typeof useViewerAura> }) {
   const setTrack = usePlayerStore((s) => s.setTrack);
   const setQueue = usePlayerStore((s) => s.setQueue);
@@ -273,7 +266,6 @@ const SpotlightCard = memo(function SpotlightCard({ track, aura }: { track: Trac
         </div>
       )}
 
-      {/* bottom gradient + info */}
       <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col gap-2 text-left">
         <div
           className="absolute inset-x-0 bottom-0 top-[-40px] pointer-events-none"
@@ -296,7 +288,6 @@ const SpotlightCard = memo(function SpotlightCard({ track, aura }: { track: Trac
         </div>
       </div>
 
-      {/* hover border glow */}
       <div
         className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{ boxShadow: `inset 0 0 0 1px ${auraRgba(aura, 0.5)}, inset 0 0 60px ${auraRgba(aura, 0.25)}` }}
@@ -305,7 +296,6 @@ const SpotlightCard = memo(function SpotlightCard({ track, aura }: { track: Trac
   );
 });
 
-// ─── Search input ──────────────────────────────────────────────────────────
 const SearchInput = memo(function SearchInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const perf = usePerfMode();
   const b = perf.blur(20);
@@ -336,7 +326,6 @@ const SearchInput = memo(function SearchInput({ value, onChange }: { value: stri
   );
 });
 
-// ─── Track grid ────────────────────────────────────────────────────────────
 const PAGE_SIZE = 24;
 
 function TrackGrid({ genreId, query }: { genreId: GenreId; query: string }) {
@@ -378,7 +367,6 @@ function TrackGrid({ genreId, query }: { genreId: GenreId; query: string }) {
   );
 }
 
-// ─── Main ──────────────────────────────────────────────────────────────────
 export default memo(function Discover() {
   const aura = useViewerAura();
   const perf = usePerfMode();
@@ -394,7 +382,6 @@ export default memo(function Discover() {
   const setTrack = usePlayerStore((s) => s.setTrack);
   const setQueue = usePlayerStore((s) => s.setQueue);
 
-  // spotlight tracks
   const { data: spotlightTracks } = useQuery<Track[]>({
     queryKey: ["discover-spotlight"],
     queryFn: () => getFeaturedTracks(10),
@@ -437,10 +424,8 @@ export default memo(function Discover() {
           className="relative z-10 w-full max-w-[1480px] mx-auto px-4 md:px-8 pt-10 md:pt-14 pb-32 flex flex-col gap-10"
           style={{ isolation: "isolate" }}
         >
-          {/* Hero */}
           <DiscoverHero aura={aura} onSurpriseMe={onSurpriseMe} isSurprising={isSurprising} />
 
-          {/* Spotlight */}
           {spotlightTracks && spotlightTracks.length > 0 && (
             <section className="flex flex-col gap-4">
               <div className="flex items-center gap-3 px-1">
@@ -466,7 +451,6 @@ export default memo(function Discover() {
             </section>
           )}
 
-          {/* Prism + genre pills */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2.5 pl-1">
               <span className="font-mono text-[10.5px] text-white/25 tabular-nums">01</span>
@@ -499,7 +483,6 @@ export default memo(function Discover() {
             </div>
           </div>
 
-          {/* Catalog */}
           <div
             className="rounded-[2rem] p-4 md:p-6"
             style={{

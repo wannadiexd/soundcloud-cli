@@ -4,7 +4,6 @@ import { usePlayerStore } from "../store/playerStore";
 import { getStreamUrl, formatDuration } from "../api/soundcloud";
 import { useNavigate } from "react-router-dom";
 
-// ── Icons ──────────────────────────────────────────────────────────────────
 const VolumeXIcon = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>;
 const Volume1Icon = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>;
 const Volume2Icon = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>;
@@ -26,7 +25,6 @@ const smBtn = (active: boolean) =>
   }`;
 const mdBtn = "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer text-white/50 hover:text-white hover:bg-white/[0.08] active:scale-90";
 
-// ── Progress bar — обновляется через DOM, не через React state ─────────────
 const ProgressSlider = memo(function ProgressSlider({
   audioRef,
   onSeek,
@@ -103,7 +101,6 @@ const ProgressSlider = memo(function ProgressSlider({
   );
 });
 
-// ── Time display — тоже через DOM ──────────────────────────────────────────
 const TimeDisplay = memo(function TimeDisplay({
   audioRef,
 }: {
@@ -139,7 +136,6 @@ const TimeDisplay = memo(function TimeDisplay({
   );
 });
 
-// ── Volume slider ──────────────────────────────────────────────────────────
 const VolumeSlider = memo(function VolumeSlider({
   volume,
   onChange,
@@ -163,7 +159,6 @@ const VolumeSlider = memo(function VolumeSlider({
   );
 });
 
-// ── Queue panel ────────────────────────────────────────────────────────────
 const QueuePanel = memo(function QueuePanel({ onClose }: { onClose: () => void }) {
   const queue = usePlayerStore((s) => s.queue);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
@@ -239,12 +234,10 @@ const QueuePanel = memo(function QueuePanel({ onClose }: { onClose: () => void }
   );
 });
 
-// ── Like button ────────────────────────────────────────────────────────────
 const LikeButton = memo(function LikeButton({ trackId }: { trackId: number }) {
   const [liked, setLiked] = useState(false);
   const prevId = useRef(trackId);
 
-  // Сбрасываем при смене трека
   useEffect(() => {
     if (prevId.current !== trackId) {
       prevId.current = trackId;
@@ -254,7 +247,6 @@ const LikeButton = memo(function LikeButton({ trackId }: { trackId: number }) {
 
   const toggle = useCallback(() => {
     setLiked((v) => !v);
-    // TODO: реальный API лайков
   }, []);
 
   return (
@@ -271,7 +263,6 @@ const LikeButton = memo(function LikeButton({ trackId }: { trackId: number }) {
   );
 });
 
-// ── Main Player ────────────────────────────────────────────────────────────
 export default memo(function Player() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const navigate = useNavigate();
@@ -283,7 +274,6 @@ export default memo(function Player() {
 
   const [queueOpen, setQueueOpen] = useState(false);
 
-  // Загрузка трека
   useEffect(() => {
     if (!currentTrack || !audioRef.current) return;
     const audio = audioRef.current;
@@ -293,14 +283,12 @@ export default memo(function Player() {
     });
   }, [currentTrack?.id]);
 
-  // Play / pause
   useEffect(() => {
     if (!audioRef.current) return;
     if (isPlaying) audioRef.current.play().catch(() => {});
     else audioRef.current.pause();
   }, [isPlaying]);
 
-  // Volume
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
@@ -344,7 +332,6 @@ export default memo(function Player() {
         <div className="npb-content">
           <div className="npb-row">
 
-            {/* Artwork */}
             <div className="npb-art">
               {currentTrack.artwork
                 ? <img src={currentTrack.artwork} alt={currentTrack.title} />
@@ -354,7 +341,6 @@ export default memo(function Player() {
               <span className="npb-eq"><i /><i /><i /><i /></span>
             </div>
 
-            {/* Track info */}
             <div className="npb-txt">
               <div className="npb-ttl" onClick={() => navigate(`/track/${currentTrack.id}`)} style={{ cursor: "pointer" }}>
   {currentTrack.title}
@@ -362,12 +348,10 @@ export default memo(function Player() {
               <div className="npb-sub"><span>{currentTrack.artist}</span></div>
             </div>
 
-            {/* Like */}
             <LikeButton trackId={currentTrack.id} />
 
             <div className="npb-sep" />
 
-            {/* Playback controls */}
             <div className="flex items-center gap-0.5">
               <button type="button" className={smBtn(shuffle)} onClick={toggleShuffle} title="Shuffle">
                 <ShuffleIcon />
@@ -391,7 +375,6 @@ export default memo(function Player() {
 
             <div className="npb-sep" />
 
-            {/* Volume + Queue */}
             <div className="flex items-center gap-0.5">
               <button
                 type="button"
@@ -415,7 +398,6 @@ export default memo(function Player() {
             </div>
           </div>
 
-          {/* Progress */}
           <div className="npb-lane">
             <TimeDisplay audioRef={audioRef} />
             <ProgressSlider audioRef={audioRef} onSeek={handleSeek} />

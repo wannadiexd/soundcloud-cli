@@ -1,7 +1,7 @@
 const CLIENT_ID = "QNR5nrdLOvApYERC8AOUr3VjRfHnLjle";
 import type { Track } from "../store/playerStore";
-const BACKEND = "/sc-auth";  // api.scdinternal.site
-const SC_API = "/sc-api";    // api-v2.soundcloud.com (публичные запросы)
+const BACKEND = "/sc-auth";
+const SC_API = "/sc-api";
 
 const streamCache = new Map<number, string>();
 
@@ -9,7 +9,6 @@ function getSessionId(): string | null {
   return localStorage.getItem("sc_session");
 }
 
-// Запросы к бэкенду scdinternal (авторизованные)
 async function fetchBackend(endpoint: string, params: Record<string, string> = {}) {
   const sessionId = getSessionId();
   const url = new URL(`${BACKEND}${endpoint}`, window.location.origin);
@@ -23,7 +22,6 @@ async function fetchBackend(endpoint: string, params: Record<string, string> = {
   return res.json();
 }
 
-// Прямые запросы к SC API (публичные — чарты, поиск, треки)
 async function fetchSC(endpoint: string, params: Record<string, string> = {}) {
   const url = new URL(`${SC_API}${endpoint}`, window.location.origin);
   url.searchParams.set("client_id", CLIENT_ID);
@@ -50,7 +48,6 @@ function mapTrack(track: any): Track {
   };
 }
 
-// Лайкнутые треки — через бэкенд
 export async function getLikedTracks(limit = 50) {
   try {
     const data = await fetchBackend("/me/likes/tracks", { limit: String(limit), page: "1" });
@@ -62,7 +59,6 @@ export async function getLikedTracks(limit = 50) {
   }
 }
 
-// История прослушиваний — через бэкенд
 export async function getPlayHistory(limit = 24) {
   try {
     const data = await fetchBackend("/history", { limit: String(limit) });

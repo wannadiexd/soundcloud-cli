@@ -1,7 +1,7 @@
 import { memo, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { searchTracks, getUser, formatCount } from "../api/soundcloud";
+import { searchTracks } from "../api/soundcloud";
 import TrackCard from "../components/TrackCard";
 import { useDebouncedValue } from "../components/discover/useDebouncedValue";
 import { useViewerAura } from "../lib/useViewerAura";
@@ -29,7 +29,7 @@ const GENRES = [
   { key: "techno", label: "Techno", color: "#22d3ee" },
 ];
 
-// ── GenreTicker ─────────────────────────────────────────────────────────────
+
 const GenreTicker = memo(function GenreTicker({ onSelect }: { onSelect: (q: string) => void }) {
   const perf = usePerfMode();
   const chips = [...GENRES, ...GENRES, ...GENRES];
@@ -69,7 +69,6 @@ const GenreTicker = memo(function GenreTicker({ onSelect }: { onSelect: (q: stri
   );
 });
 
-// ── EntityStrip (artists/users) ─────────────────────────────────────────────
 interface EntityItem {
   key: string;
   label: string;
@@ -120,7 +119,6 @@ const EntityStrip = memo(function EntityStrip({ items }: { items: EntityItem[] }
   );
 });
 
-// ── Tabs ────────────────────────────────────────────────────────────────────
 const TABS: { id: TabId; label: string }[] = [
   { id: "tracks", label: "Tracks" },
   { id: "users", label: "Users" },
@@ -187,7 +185,6 @@ function TabBar({
   );
 }
 
-// ── Empty / No results ──────────────────────────────────────────────────────
 const EmptyState = memo(function EmptyState({ aura }: { aura: ReturnType<typeof useViewerAura> }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-5">
@@ -226,7 +223,6 @@ const NoResults = memo(function NoResults({ q, tab }: { q: string; tab: TabId })
   );
 });
 
-// ── Skeleton ────────────────────────────────────────────────────────────────
 function TrackSkeleton({ count = 24 }: { count?: number }) {
   return (
     <>
@@ -257,7 +253,6 @@ function UserSkeleton({ count = 8 }: { count?: number }) {
   );
 }
 
-// ── Users tab ───────────────────────────────────────────────────────────────
 function UsersTab({ q, aura }: { q: string; aura: ReturnType<typeof useViewerAura> }) {
   const navigate = useNavigate();
   const { data: tracks = [], isLoading } = useQuery<Track[]>({
@@ -267,7 +262,6 @@ function UsersTab({ q, aura }: { q: string; aura: ReturnType<typeof useViewerAur
     placeholderData: (prev) => prev,
   });
 
-  // dedupe artists from track results
   const artists = useMemo(() => {
     const seen = new Set<string>();
     const out: { id: number; name: string; avatar: string | null }[] = [];
@@ -311,12 +305,10 @@ function UsersTab({ q, aura }: { q: string; aura: ReturnType<typeof useViewerAur
   );
 }
 
-// ── Playlists tab ───────────────────────────────────────────────────────────
 function PlaylistsTab({ q }: { q: string }) {
   return <NoResults q={q} tab="playlists" />;
 }
 
-// ── ResultsHeader ───────────────────────────────────────────────────────────
 const ResultsHeader = memo(function ResultsHeader({
   q, count, isLoading, aura,
 }: {
@@ -344,7 +336,6 @@ const ResultsHeader = memo(function ResultsHeader({
   );
 });
 
-// ── Main ────────────────────────────────────────────────────────────────────
 export default memo(function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
   const q = searchParams.get("q") || "";
@@ -373,7 +364,6 @@ export default memo(function Search() {
     return out.slice(0, 20);
   }, [tracks]);
 
-  // EntityStrip — artists found in results
   const entityItems: EntityItem[] = useMemo(
     () =>
       artists.map((a) => ({
@@ -411,7 +401,6 @@ export default memo(function Search() {
           <>
             <ResultsHeader q={q} count={tab === "tracks" ? tracks.length : artists.length} isLoading={tracksLoading} aura={aura} />
 
-            {/* Artists strip — показывается только на вкладке tracks */}
             {tab === "tracks" && artists.length > 0 && (
               <EntityStrip items={entityItems} />
             )}

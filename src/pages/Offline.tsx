@@ -27,7 +27,6 @@ function shuffled<T>(arr: T[]): T[] {
   return out;
 }
 
-// ─── Storage stats panel ───────────────────────────────────────────────────
 function StoragePanel({
   trackCount,
   aura,
@@ -52,13 +51,11 @@ function StoragePanel({
         WebkitBackdropFilter: deckBlur > 0 ? `blur(${deckBlur}px) saturate(1.25)` : undefined,
       }}
     >
-      {/* accent top line */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-70"
         style={{ background: "linear-gradient(90deg, transparent, var(--color-accent-glow) 18%, transparent 42%)" }}
       />
 
-      {/* left — info */}
       <div className="flex flex-col justify-between gap-6 p-6 md:p-8">
         <div>
           <div className="flex items-center gap-2.5 mb-3">
@@ -105,10 +102,8 @@ function StoragePanel({
         </div>
       </div>
 
-      {/* divider */}
       <div className="mx-6 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent lg:mx-0 lg:h-auto lg:w-px lg:bg-gradient-to-b" />
 
-      {/* right — stats */}
       <div className="flex flex-col justify-center gap-4 p-6 md:p-8">
         {[
           { label: "Cached tracks", value: String(trackCount), sub: "in history" },
@@ -134,7 +129,6 @@ function StoragePanel({
   );
 }
 
-// ─── Toolbar ───────────────────────────────────────────────────────────────
 function Toolbar({
   total,
   query,
@@ -222,7 +216,6 @@ function Toolbar({
   );
 }
 
-// ─── Track row ─────────────────────────────────────────────────────────────
 function TrackRow({
   track,
   index,
@@ -241,7 +234,6 @@ function TrackRow({
       className="group flex items-center gap-4 px-4 py-2.5 rounded-[14px] hover:bg-white/[0.04] transition-all duration-200 cursor-pointer"
       onClick={onClick}
     >
-      {/* index / play */}
       <div className="w-6 shrink-0 flex items-center justify-center">
         <span
           className={`text-[11px] tabular-nums font-medium transition-all duration-200 group-hover:opacity-0 ${isPlaying ? "opacity-0" : "opacity-100"}`}
@@ -254,7 +246,6 @@ function TrackRow({
         </span>
       </div>
 
-      {/* artwork */}
       <div className="relative w-10 h-10 shrink-0 rounded-xl overflow-hidden ring-1 ring-white/[0.08]">
         {track.artwork ? (
           <img src={track.artwork} alt="" className="w-full h-full object-cover" decoding="async" />
@@ -273,7 +264,6 @@ function TrackRow({
         )}
       </div>
 
-      {/* info */}
       <div className="flex-1 min-w-0">
         <p
           className="text-[13px] font-medium truncate transition-colors duration-150"
@@ -284,12 +274,10 @@ function TrackRow({
         <p className="text-[11.5px] text-white/40 truncate mt-0.5">{track.artist}</p>
       </div>
 
-      {/* plays */}
       <span className="hidden sm:block text-[11px] text-white/20 tabular-nums shrink-0 w-16 text-right">
         {formatCount(track.playbackCount)} plays
       </span>
 
-      {/* duration */}
       <span className="text-[11px] text-white/25 tabular-nums shrink-0 w-10 text-right">
         {formatDuration(track.duration)}
       </span>
@@ -297,7 +285,6 @@ function TrackRow({
   );
 }
 
-// ─── Empty state ───────────────────────────────────────────────────────────
 function Empty({ query }: { query: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -316,7 +303,6 @@ function Empty({ query }: { query: string }) {
   );
 }
 
-// ─── Main ──────────────────────────────────────────────────────────────────
 export default memo(function Offline() {
   const entries = useHistoryStore((s) => s.entries);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
@@ -374,7 +360,6 @@ export default memo(function Offline() {
         className="relative z-10 mx-auto flex w-full max-w-[1180px] flex-col gap-5"
         style={{ isolation: "isolate" }}
       >
-        {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-[28px] font-black tracking-tight text-white/95 leading-none">
@@ -397,7 +382,6 @@ export default memo(function Offline() {
           </div>
         </div>
 
-        {/* Storage panel */}
         <StoragePanel
           trackCount={allTracks.length}
           aura={aura}
@@ -406,7 +390,6 @@ export default memo(function Offline() {
           onShuffle={handleShuffle}
         />
 
-        {/* Toolbar */}
         <Toolbar
           total={filtered.length}
           query={query}
@@ -417,7 +400,6 @@ export default memo(function Offline() {
           deckBlur={deckBlur}
         />
 
-        {/* Track list */}
         <div
           className="rounded-[18px] overflow-hidden border border-white/[0.06]"
           style={{

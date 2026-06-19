@@ -27,7 +27,6 @@ import { usePerfMode } from "../lib/perf";
 import { USER_PAGE_KEYFRAMES } from "../components/user/keyframes";
 import type { Track } from "../store/playerStore";
 
-// ── Keyframes ──────────────────────────────────────────────────────────────
 const PLAYLIST_KEYFRAMES = `
 @keyframes crate-deal-in {
   from { opacity: 0; transform: translateY(26px); }
@@ -36,7 +35,6 @@ const PLAYLIST_KEYFRAMES = `
 .crate-sleeve-in { animation: crate-deal-in 620ms cubic-bezier(0.2,0.8,0.2,1) both; }
 `;
 
-// ── Icons ──────────────────────────────────────────────────────────────────
 const PlayIcon = () => <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3.5l12 6.5-12 6.5V3.5z"/></svg>;
 const PauseIcon = () => <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><rect x="4" y="3" width="4" height="14" rx="1"/><rect x="12" y="3" width="4" height="14" rx="1"/></svg>;
 const ShuffleIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>;
@@ -59,7 +57,6 @@ const FAN = [
   { rot: -12, x: -31, y: 17, s: 0.91, z: 10 },
 ] as const;
 
-// ── CrateStack ─────────────────────────────────────────────────────────────
 const CrateStack = memo(function CrateStack({
   playlist, tracks, isPlaying, onPlay,
 }: {
@@ -127,7 +124,6 @@ const CrateStack = memo(function CrateStack({
   );
 });
 
-// ── CuratorCard ────────────────────────────────────────────────────────────
 const CuratorCard = memo(function CuratorCard({
   user, aura, description,
 }: {
@@ -174,7 +170,6 @@ const CuratorCard = memo(function CuratorCard({
   );
 });
 
-// ── PlaylistActions ────────────────────────────────────────────────────────
 const PlaylistActions = memo(function PlaylistActions({
   playlist, isPlaying, onPlayAll, onShuffle,
 }: {
@@ -242,7 +237,6 @@ const PlaylistActions = memo(function PlaylistActions({
   );
 });
 
-// ── Row body ───────────────────────────────────────────────────────────────
 function RowBody({ track, index, isThis, isThisPlaying, onToggle }: {
   track: Track; index: number; isThis: boolean; isThisPlaying: boolean; onToggle: () => void;
 }) {
@@ -301,7 +295,6 @@ function RowBody({ track, index, isThis, isThisPlaying, onToggle }: {
 
 const ROW_BASE = "group relative flex items-center gap-3.5 pl-4 pr-4 py-3 rounded-xl transition-colors duration-200 select-none";
 
-// ── SortableRow ────────────────────────────────────────────────────────────
 const SortableRow = memo(function SortableRow({ track, index, queue, onRemove }: {
   track: Track; index: number; queue: Track[]; onRemove: (id: number) => void;
 }) {
@@ -331,7 +324,6 @@ const SortableRow = memo(function SortableRow({ track, index, queue, onRemove }:
   );
 });
 
-// ── ReadonlyRow ────────────────────────────────────────────────────────────
 const ReadonlyRow = memo(function ReadonlyRow({ track, index, queue }: { track: Track; index: number; queue: Track[] }) {
   const { setTrack, setQueue, currentTrack, isPlaying, togglePlay } = usePlayerStore();
   const isThis = currentTrack?.id === track.id;
@@ -344,7 +336,6 @@ const ReadonlyRow = memo(function ReadonlyRow({ track, index, queue }: { track: 
   );
 });
 
-// ── OverlayRow ─────────────────────────────────────────────────────────────
 function OverlayRow({ track, index, queue }: { track: Track; index: number; queue: Track[] }) {
   const { currentTrack, isPlaying, togglePlay, setTrack, setQueue } = usePlayerStore();
   const isThis = currentTrack?.id === track.id;
@@ -360,7 +351,6 @@ function OverlayRow({ track, index, queue }: { track: Track; index: number; queu
   );
 }
 
-// ── SequenceList ───────────────────────────────────────────────────────────
 const SequenceList = memo(function SequenceList({ tracks, isOwner, onDragEnd, onRemove }: {
   tracks: Track[];
   isOwner: boolean;
@@ -415,7 +405,6 @@ const SequenceList = memo(function SequenceList({ tracks, isOwner, onDragEnd, on
   );
 });
 
-// ── Skeleton ───────────────────────────────────────────────────────────────
 function HeroSkeleton() {
   return (
     <div className="relative rounded-[2.5rem] overflow-hidden glass-featured p-6 md:p-10">
@@ -432,7 +421,6 @@ function HeroSkeleton() {
   );
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────
 export default memo(function PlaylistPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -516,7 +504,6 @@ export default memo(function PlaylistPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
 
-        {/* Hero */}
         <div
           className="relative overflow-hidden rounded-[2.25rem] p-6 md:p-10"
           style={{
@@ -564,7 +551,6 @@ export default memo(function PlaylistPage() {
           </div>
         </div>
 
-        {/* Track list */}
         <SequenceList tracks={tracks} isOwner={false} onDragEnd={handleDragEnd} onRemove={handleRemove} />
       </div>
     </div>

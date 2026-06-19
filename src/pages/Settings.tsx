@@ -72,14 +72,13 @@ export default function Settings() {
       </div>
 
       <div className="flex flex-col gap-8">
-        {/* Account */}
         <div>
           <SectionHeader index="01" label="Account" />
           <Card>
             {user ? (
               <div className="flex items-center gap-4">
                 <img
-                  src={user.avatar}
+                  src={user.avatar_url}
                   alt={user.username}
                   className="w-14 h-14 rounded-full object-cover ring-1 ring-white/10"
                 />
