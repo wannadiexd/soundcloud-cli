@@ -2,9 +2,9 @@ import { useCallback, useRef } from 'react';
 import type { Track } from '../store/playerStore';
 import { usePlayerStore } from '../store/playerStore';
 
-export function useTrackPlay(track: Track, queue?: Track[] | (() => Track[]), onPlay?: () => void) {
-  const isThis = usePlayerStore((s) => s.currentTrack?.id === track.id);
-  const isThisPlaying = usePlayerStore((s) => s.currentTrack?.id === track.id && s.isPlaying);
+export function useTrackPlay(track: Track | undefined, queue?: Track[] | (() => Track[]), onPlay?: () => void) {
+  const isThis = usePlayerStore((s) => !!track && s.currentTrack?.id === track.id);
+  const isThisPlaying = usePlayerStore((s) => !!track && s.currentTrack?.id === track.id && s.isPlaying);
 
   const trackRef = useRef(track);
   const queueRef = useRef(queue);
@@ -14,7 +14,8 @@ export function useTrackPlay(track: Track, queue?: Track[] | (() => Track[]), on
   onPlayRef.current = onPlay;
 
   const togglePlay = useCallback(() => {
-    const { setTrack, setQueue, pause, resume, isPlaying, currentTrack } = usePlayerStore.getState();
+    if (!trackRef.current) return;
+    const { setTrack, setQueue, pause, resume } = usePlayerStore.getState();
     if (isThisPlaying) {
       pause();
     } else if (isThis) {

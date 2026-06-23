@@ -59,18 +59,36 @@ export const useHistoryStore = create<HistoryStore>((set, get) => ({
   },
 
   syncFromBackend: async () => {
-    try {
-      const data = await api<{ collection: { track: Track; played_at: string }[] }>(
-        '/history?limit=100',
-      );
-      const entries: HistoryEntry[] = data.collection.map((item) => ({
-        track: item.track,
-        playedAt: new Date(item.played_at).getTime(),
-      }));
-      saveHistory(entries);
-      set({ entries });
-    } catch {
-      // бэкенд заглушка
-    }
-  },
+  try {
+    const data = await api<{ collection: { track: any; played_at: string }[] }>(
+      '/history?limit=100',
+    );
+    const entries: HistoryEntry[] = data.collection
+      .filter((item) => item?.track?.id)
+      .map((item) => {
+        const t = item.track;
+        return {
+          track: {
+            id: t.id,
+            title: t.title || "Unknown",
+            artist: t.user?.username || t.artist || "Unknown",
+            artwork: t.artwork_url?.replace("large", "t300x300") || t.artwork || null,
+            duration: t.full_duration || t.duration || 0,
+            playbackCount: t.playback_count || t.playbackCount || 0,
+            likesCount: t.likes_count || t.likesCount || 0,
+            streamUrl: t.streamUrl || "",
+            permalinkUrl: t.permalink_url || t.permalinkUrl || "",
+            userId: String(t.user?.id || t.userId || ""),
+            userAvatar: t.user?.avatar_url || t.userAvatar || null,
+            genre: t.genre || null,
+          } as unknown as Track,
+          playedAt: new Date(item.played_at).getTime(),
+        };
+      });
+    saveHistory(entries);
+    set({ entries });
+  } catch {
+    // бэкенд заглушка
+  }
+},
 }));

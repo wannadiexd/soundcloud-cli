@@ -11,6 +11,8 @@ import { auraRgba } from "../lib/aura";
 import { usePerfMode } from "../lib/perf";
 import { USER_PAGE_KEYFRAMES } from "../components/user/keyframes";
 import type { Track } from "../store/playerStore";
+import { PlaylistCard } from "../components/PlaylistCard";
+import { getUserPlaylists } from "../api/soundcloud";
 
 const HeartIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>;
 const ClockIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
@@ -369,8 +371,39 @@ function Empty({ label }: { label: string }) {
 const tabs = [
   { to: "/library", label: "Overview", end: true },
   { to: "/library/likes", label: "Likes" },
+  { to: "/library/playlists", label: "Playlists" },
   { to: "/library/history", label: "History" },
 ];
+
+function Playlists() {
+  const { data: playlists = [], isLoading } = useQuery({
+    queryKey: ["userPlaylists"],
+    queryFn: () => getUserPlaylists(50),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  if (isLoading) return (
+    <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i}>
+          <div className="aspect-square w-full rounded-2xl skeleton-shimmer" />
+          <div className="mt-2.5 h-4 w-3/4 rounded-md skeleton-shimmer" />
+          <div className="mt-1.5 h-3 w-1/2 rounded-md skeleton-shimmer" />
+        </div>
+      ))}
+    </div>
+  );
+
+  if (!playlists.length) return <Empty label="No playlists yet" />;
+
+  return (
+    <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
+      {playlists.map((p: any) => (
+        <PlaylistCard key={p.id} playlist={p} showPlayback />
+      ))}
+    </div>
+  );
+}
 
 function TabBar() {
   return (
@@ -410,6 +443,7 @@ export default memo(function Library() {
           <Route path="/likes" element={<Likes />} />
           <Route path="/history" element={<History />} />
           <Route path="/*" element={<Empty label="Coming soon" />} />
+          <Route path="/playlists" element={<Playlists />} />
         </Routes>
       </div>
     </div>

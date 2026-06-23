@@ -17,4 +17,4 @@ export interface AlbumDetail {
   primary_artist?: AlbumArtist;
   artists: AlbumArtist[];
   tracks: Track[];
-}
+}   

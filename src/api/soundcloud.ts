@@ -247,3 +247,30 @@ export async function getPlaylist(playlistId: string) {
       })),
   };
 }
+
+export async function getUserPlaylists(limit = 20) {
+  try {
+    const data = await fetchBackend("/me/likes/playlists", { limit: String(limit) });
+    const items = data.collection ?? data ?? [];
+    return items
+      .filter((item: any) => item?.playlist?.id || item?.id)
+      .map((item: any) => {
+        const p = item.playlist ?? item;
+        return {
+          id: p.id,
+          title: p.title || "Untitled",
+          artwork: p.artwork_url?.replace("large", "t300x300") || null,
+          trackCount: p.track_count || 0,
+          likesCount: p.likes_count || 0,
+          isAlbum: p.is_album || false,
+          user: { username: p.user?.username || "Unknown" },
+          tracks: (p.tracks || []).slice(0, 5).map((t: any) => ({
+            id: t.id,
+            artwork: t.artwork_url?.replace("large", "t300x300") || null,
+          })),
+        };
+      });
+  } catch {
+    return [];
+  }
+}

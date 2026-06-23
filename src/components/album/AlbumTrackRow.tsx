@@ -31,6 +31,7 @@ interface AlbumTrackRowProps {
 }
 
 function AlbumTrackRowImpl({ track, position, queue, aura }: AlbumTrackRowProps) {
+    if (!track?.id) return null;
   const { isThis, isThisPlaying, togglePlay } = useTrackPlay(track, queue);
   const navigate = useNavigate();
   const hoverB = usePerfMode().blur(16);
@@ -51,7 +52,6 @@ function AlbumTrackRowImpl({ track, position, queue, aura }: AlbumTrackRowProps)
         if (!isThis) e.currentTarget.style.background = '';
       }}
     >
-      {/* position / play button */}
       <div
         className="w-10 h-10 flex items-center justify-center shrink-0 relative"
         onClick={togglePlay}
@@ -88,7 +88,6 @@ function AlbumTrackRowImpl({ track, position, queue, aura }: AlbumTrackRowProps)
         )}
       </div>
 
-      {/* artwork */}
       <div
         className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 transition-transform duration-500 group-hover:scale-105"
         style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)' }}
@@ -103,7 +102,6 @@ function AlbumTrackRowImpl({ track, position, queue, aura }: AlbumTrackRowProps)
         )}
       </div>
 
-      {/* title / artist */}
       <div className="flex-1 min-w-0" onClick={togglePlay}>
         <p
           className="text-[13px] font-medium truncate transition-colors duration-150"
@@ -122,7 +120,6 @@ function AlbumTrackRowImpl({ track, position, queue, aura }: AlbumTrackRowProps)
         </p>
       </div>
 
-      {/* duration */}
       <span className="text-[12px] text-white/30 tabular-nums font-medium shrink-0 w-12 text-right">
         {dur(track.duration)}
       </span>
