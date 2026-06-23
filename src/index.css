@@ -369,3 +369,9 @@ input, textarea, select, [contenteditable="true"], .selectable {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+input:focus,
+input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}

@@ -47,6 +47,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ accentColor });
     document.documentElement.style.setProperty("--color-accent", accentColor);
     document.documentElement.style.setProperty("--color-accent-glow", `${accentColor}55`);
+    document.documentElement.style.setProperty("--color-accent-selection", accentColor + "4d");
     const s = get(); save({ accentColor, perfMode: s.perfMode, themePreset: s.themePreset, floatingComments: s.floatingComments, normalizeVolume: s.normalizeVolume });
   },
 
@@ -75,6 +76,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ accentColor, themePreset: "soundcloud" });
     document.documentElement.style.setProperty("--color-accent", accentColor);
     document.documentElement.style.setProperty("--color-accent-glow", `${accentColor}55`);
+    document.documentElement.style.setProperty("--color-accent-selection", accentColor + "4d");
     const s = get(); save({ accentColor, perfMode: s.perfMode, themePreset: "soundcloud", floatingComments: s.floatingComments, normalizeVolume: s.normalizeVolume });
   },
 }));  

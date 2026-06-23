@@ -97,10 +97,12 @@ export default function Titlebar() {
             className="relative flex items-center gap-2.5 h-9 pl-4 pr-2 rounded-full"
             style={{
               background: "linear-gradient(165deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.025) 60%, rgba(255,255,255,0.045) 100%)",
-              border: `0.5px solid ${focused ? "rgba(255,85,0,0.6)" : "rgba(255,255,255,0.12)"}`,
+              border: focused
+                ? "0.5px solid var(--color-accent)"
+                : "0.5px solid rgba(255,255,255,0.12)",
               backdropFilter: "blur(24px) saturate(160%)",
               boxShadow: focused
-                ? "0 10px 34px rgba(0,0,0,0.4), 0 0 12px rgba(255,85,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)"
+                ? "0 10px 34px rgba(0,0,0,0.4), 0 0 12px var(--color-accent-glow), inset 0 1px 0 rgba(255,255,255,0.1)"
                 : "0 6px 20px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.07)",
               transition: "border-color 300ms ease, box-shadow 400ms ease",
             }}

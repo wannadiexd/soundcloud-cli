@@ -104,10 +104,10 @@ export default function TrackCard({ track, queue }: Props) {
           }`}
           style={{
             background: isLiked
-              ? "rgba(255,85,0,0.15)"
+              ? "var(--color-accent-glow)"
               : "rgba(0,0,0,0.45)",
             backdropFilter: "blur(8px)",
-            border: isLiked ? "0.5px solid rgba(255,85,0,0.3)" : "0.5px solid rgba(255,255,255,0.12)",
+            border: isLiked ? "0.5px solid var(--color-accent)" : "0.5px solid rgba(255,255,255,0.12)",
           }}
         >
           <HeartIcon filled={isLiked} />

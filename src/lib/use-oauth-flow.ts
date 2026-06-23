@@ -1,4 +1,3 @@
-import { openUrl } from '@tauri-apps/plugin-opener';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_BASE } from './constants';
 
@@ -13,6 +12,15 @@ interface LoginStatusResponse {
   sessionId?: string;
   username?: string;
   error?: string;
+}
+
+async function openUrl(url: string) {
+  if ((window as any).__TAURI_INTERNALS__) {
+    const { openUrl: tauriOpenUrl } = await import('@tauri-apps/plugin-opener');
+    await tauriOpenUrl(url);
+  } else {
+    window.open(url, '_blank');
+  }
 }
 
 export type OAuthStep = 'waiting' | 'token' | 'profile' | 'session';
