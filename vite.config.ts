@@ -8,6 +8,9 @@ export default defineConfig({
   server: {
     port: 1420,
     strictPort: true,
+    watch: {
+    ignored: ["**/src-tauri/**"],
+  },
     proxy: {
       "/sc-api": {
         target: "https://api-v2.soundcloud.com",
