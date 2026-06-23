@@ -3,9 +3,16 @@ import { api } from './api-client';
 import type { AuraId } from './aura';
 
 export type AlbumKind = 'album' | 'ep' | 'single' | 'compilation';
-export type ArtistSort = 'popular' | 'trending' | 'listeners' | 'tracks' | 'az';
+export type ArtistSort = 'popular' | 'trending' | 'listeners' | 'tracks' | 'star' | 'az';
 export type AlbumSort = 'recent' | 'popular' | 'tracks' | 'az';
 export type AlbumKindFilter = 'all' | AlbumKind;
+export type TagFilter = 'all' | string;
+
+export interface CatalogTag {
+  id: string;
+  label: string;
+  count: number;
+}
 
 export interface CatalogArtist {
   id: string;
@@ -107,15 +114,17 @@ export function useDiscoverSpotlight(limit?: number) {
   });
 }
 
-export function useDiscoverArtists(params: { sort: ArtistSort; q?: string }) {
-  const { sort, q } = params;
+export function useDiscoverArtists(params: { sort: ArtistSort; tag?: TagFilter; q?: string }) {
+  const { sort, tag, q } = params;
+  const tagParam = tag && tag !== 'all' ? tag : undefined;
   const search = sanitizeSearch(q);
   return useInfiniteQuery({
-    queryKey: ['discover', 'artists', sort, search] as const,
+    queryKey: ['discover', 'artists', sort, tagParam, search] as const,
     queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
       api<CursorPage<CatalogArtist>>(
         buildUrl('/discover/artists', {
           sort,
+          tag: tagParam,
           q: search,
           cursor: pageParam,
           limit: String(PAGE_LIMIT),
@@ -169,4 +178,20 @@ export function flattenPages<T>(data: InfiniteData<CursorPage<T>> | undefined): 
     if (p?.items) out.push(...p.items);
   }
   return out;
+}
+
+export function useDiscoverTags(limit = 8) {
+  return useQuery<CursorPage<CatalogTag>>({
+    queryKey: ['discover', 'tags', limit],
+    queryFn: () =>
+      api<CursorPage<CatalogTag>>(buildUrl('/discover/tags', { limit: String(limit) })),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function reachedHardCap<T>(data: InfiniteData<CursorPage<T>> | undefined): boolean {
+  if (!data) return false;
+  if (data.pages.length < MAX_PAGES) return false;
+  const last = data.pages[data.pages.length - 1];
+  return Boolean(last?.next_cursor);
 }

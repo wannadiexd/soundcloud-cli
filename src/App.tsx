@@ -5,7 +5,7 @@ import Player from "./components/Player";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Library from "./pages/Library";
-import Discover from "./pages/Discover";
+import { Discover } from './pages/Discover';
 import Login from "./pages/Login";
 import Settings from "./pages/Settings";
 import { usePlayerStore } from "./store/playerStore";
@@ -16,6 +16,9 @@ import TrackPage from "./pages/TrackPage";
 import UserPage from "./pages/UserPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import PlaylistPage from "./pages/PlaylistPage";
+import { lazy, Suspense } from 'react';
+const AlbumPage = lazy(() => import('./pages/AlbumPage'));
+const ArtistPage = lazy(() => import('./pages/ArtistPage'));
 
 function AmbientGlow() {
   const track = usePlayerStore((s) => s.currentTrack);
@@ -87,6 +90,8 @@ export default function App() {
             <Route path="/user/:id" element={<UserPage />} />
             <Route path="/playlist/:id" element={<PlaylistPage />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="/album/:id" element={<Suspense fallback={null}><AlbumPage /></Suspense>} />
+            <Route path="/artist/:id" element={<Suspense fallback={null}><ArtistPage /></Suspense>} />
           </Routes>
           </ErrorBoundary>
         </main>
