@@ -17,6 +17,8 @@ import UserPage from "./pages/UserPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import PlaylistPage from "./pages/PlaylistPage";
 import { lazy, Suspense } from 'react';
+import { useLikesStore } from "./store/likesStore";
+import { useHistoryStore } from "./store/historyStore";
 const AlbumPage = lazy(() => import('./pages/AlbumPage'));
 const ArtistPage = lazy(() => import('./pages/ArtistPage'));
 
@@ -64,6 +66,13 @@ export default function App() {
       if (t) clearTimeout(t);
     };
   }, []);
+
+  useEffect(() => {
+    if (sessionId) {
+      useLikesStore.getState().fetchLikes();
+      useHistoryStore.getState().syncFromBackend();
+    }
+  }, [sessionId]);
 
   if (!sessionId) return <Login />;
 

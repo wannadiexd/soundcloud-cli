@@ -173,6 +173,7 @@ const ContinueRow = memo(function ContinueRow() {
     const seen = new Set<number>();
     const out: Track[] = [];
     for (const e of entries) {
+      if (!e?.track?.id) continue;
       if (seen.has(e.track.id)) continue;
       seen.add(e.track.id);
       out.push(e.track);
@@ -289,6 +290,7 @@ function History() {
     const out: Array<{ type: "header"; label: string } | { type: "entry"; entry: HistoryEntry }> = [];
     let lastLabel = "";
     for (const entry of entries) {
+      if (!entry?.track?.id) continue;
       const label = formatHistoryDate(entry.playedAt);
       if (label !== lastLabel) { lastLabel = label; out.push({ type: "header", label }); }
       out.push({ type: "entry", entry });

@@ -59,7 +59,7 @@ function SubShelf({
         {isLoading ? (
           <ShelfSkeleton />
         ) : (
-          tracks.map((track) => (
+          tracks.filter(Boolean).map((track) => (
             <div key={track.id} className="w-[176px] shrink-0">
               <TrackCard track={track} queue={tracks} />
             </div>

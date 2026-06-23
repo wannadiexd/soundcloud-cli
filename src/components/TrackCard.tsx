@@ -1,4 +1,5 @@
 import { usePlayerStore } from "../store/playerStore";
+import { useLikesStore } from "../store/likesStore";
 import { formatDuration, formatCount, getStreamUrl } from "../api/soundcloud";
 import { useNavigate } from "react-router-dom";
 import type { Track } from "../store/playerStore";
@@ -19,12 +20,21 @@ const PauseIcon = () => (
     <rect x="12" y="3" width="4" height="14" rx="1" />
   </svg>
 );
+const HeartIcon = ({ filled }: { filled: boolean }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  </svg>
+);
 
 export default function TrackCard({ track, queue }: Props) {
   const { setTrack, setQueue, currentTrack, isPlaying, togglePlay } = usePlayerStore();
+  const isLiked = useLikesStore((s) => s.isLiked(track?.id ?? 0));
+  const toggleLike = useLikesStore((s) => s.toggleLike);
   const navigate = useNavigate();
-  const isThisPlaying = currentTrack?.id === track.id && isPlaying;
-  const isThisTrack = currentTrack?.id === track.id;
+  const isThisPlaying = currentTrack?.id === track?.id && isPlaying;
+  const isThisTrack = currentTrack?.id === track?.id;
+
+  if (!track?.id) return null;
 
   const handleMouseEnter = () => {
     getStreamUrl(track.id).catch(() => {});
@@ -83,6 +93,26 @@ export default function TrackCard({ track, queue }: Props) {
             {isThisPlaying ? <PauseIcon /> : <PlayIcon />}
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleLike(track.id); }}
+          className={`absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer opacity-0 group-hover:opacity-100 ${
+            isLiked
+              ? "opacity-100 text-[var(--color-accent)]"
+              : "text-white/70 hover:text-white"
+          }`}
+          style={{
+            background: isLiked
+              ? "rgba(255,85,0,0.15)"
+              : "rgba(0,0,0,0.45)",
+            backdropFilter: "blur(8px)",
+            border: isLiked ? "0.5px solid rgba(255,85,0,0.3)" : "0.5px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          <HeartIcon filled={isLiked} />
+        </button>
+
         <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <div className="text-[10px] font-medium bg-black/50 backdrop-blur-md text-white/80 px-2 py-0.5 rounded-full">
             {formatDuration(track.duration)}
@@ -98,14 +128,14 @@ export default function TrackCard({ track, queue }: Props) {
           {track.title}
         </p>
         <p
-  className="text-[11px] truncate mt-0.5 text-white/35 hover:text-white/60 transition-colors duration-150 cursor-pointer"
-  onClick={(e) => {
-    e.stopPropagation();
-    if (track.userId) navigate(`/user/${track.userId}`);
-  }}
->
-  {track.artist}
-</p>
+          className="text-[11px] truncate mt-0.5 text-white/35 hover:text-white/60 transition-colors duration-150 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (track.userId) navigate(`/user/${track.userId}`);
+          }}
+        >
+          {track.artist}
+        </p>
         {track.playbackCount != null && (
           <p className="text-[10px] text-white/20 mt-1 tabular-nums">
             {formatCount(track.playbackCount)} plays

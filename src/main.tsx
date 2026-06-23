@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./index.css";
 
+const { accentColor } = useSettingsStore.getState();
+document.documentElement.style.setProperty("--color-accent", accentColor);
+document.documentElement.style.setProperty("--color-accent-glow", `${accentColor}55`);
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
